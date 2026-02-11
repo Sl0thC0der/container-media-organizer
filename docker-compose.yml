@@ -1,0 +1,41 @@
+services:
+  # Media organizer with Docker Model Runner
+  # DMR runs natively in Docker Desktop, no separate container needed!
+  media-organizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media-organizer
+    volumes:
+      - ${MEDIA_PATH:?Set MEDIA_PATH to your media library}:/media
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - WORK_DIR=/media
+      - DMR_URL=http://model-runner.docker.internal
+      - DMR_MODEL=ai/qwen3-vl
+    command: python3 /app/scripts/organize.py
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 2G
+
+  # Scheduled runs (daily at 2 AM)
+  media-organizer-cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.cron
+    container_name: media-organizer-cron
+    volumes:
+      - ${MEDIA_PATH:?Set MEDIA_PATH to your media library}:/media
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - WORK_DIR=/media
+      - DMR_URL=http://model-runner.docker.internal
+      - DMR_MODEL=ai/qwen3-vl
+    profiles:
+      - cron

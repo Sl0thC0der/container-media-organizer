@@ -1,0 +1,4 @@
+# Python dependencies for media library organization
+
+# Core dependencies
+requests>=2.31.0  # For Docker Model Runner API communication
