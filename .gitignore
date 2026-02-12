@@ -190,6 +190,12 @@ api_keys.txt
 *.old
 archive/
 
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
 # ============================================================================
 # AI Assistant Configuration
 # ============================================================================
