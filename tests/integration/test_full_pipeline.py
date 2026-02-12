@@ -77,8 +77,9 @@ class TestFullPipeline:
         mock_dmr_instance.check_connection.return_value = True
         mock_dmr_instance.call_api.return_value = '{"Creator A": "creator_a", "Creator B": "creator_b", "Various Files": null}'
 
-        mocker.patch('media_organizer.config.WORK_DIR', container_folder_structure)
-        mocker.patch('media_organizer.core.database.DB_FILE', container_folder_structure / "test.db")
+        # Patch WORK_DIR in the cli module where it's used
+        mocker.patch('media_organizer.cli.WORK_DIR', container_folder_structure)
+        mocker.patch('media_organizer.cli.DB_FILE', container_folder_structure / "test.db")
 
         organizer = MediaOrganizer()
         result = organizer.run()
@@ -92,8 +93,9 @@ class TestFullPipeline:
         mock_dmr_instance.check_connection.return_value = True
         mock_dmr_instance.call_api.return_value = '{"creator1": "creator1"}'
 
-        mocker.patch('media_organizer.config.WORK_DIR', media_with_duplicates)
-        mocker.patch('media_organizer.core.database.DB_FILE', media_with_duplicates / "test.db")
+        # Patch WORK_DIR in the cli module where it's used
+        mocker.patch('media_organizer.cli.WORK_DIR', media_with_duplicates)
+        mocker.patch('media_organizer.cli.DB_FILE', media_with_duplicates / "test.db")
 
         organizer = MediaOrganizer()
         result = organizer.run()
