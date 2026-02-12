@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: media-organizer
+    user: "1000:1000"
     volumes:
       - ${MEDIA_PATH:?Set MEDIA_PATH to your media library}:/media
       - ./config:/app/config
@@ -15,7 +16,13 @@ services:
       - DMR_URL=http://model-runner.docker.internal
       - DMR_MODEL=ai/qwen3-vl
     command: python3 /app/scripts/organize.py
-    restart: "no"
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /app/config/library.db || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: on-failure:3
     deploy:
       resources:
         limits:
@@ -29,6 +36,7 @@ services:
       context: .
       dockerfile: Dockerfile.cron
     container_name: media-organizer-cron
+    user: "1000:1000"
     volumes:
       - ${MEDIA_PATH:?Set MEDIA_PATH to your media library}:/media
       - ./config:/app/config
@@ -37,5 +45,6 @@ services:
       - WORK_DIR=/media
       - DMR_URL=http://model-runner.docker.internal
       - DMR_MODEL=ai/qwen3-vl
+    restart: unless-stopped
     profiles:
       - cron

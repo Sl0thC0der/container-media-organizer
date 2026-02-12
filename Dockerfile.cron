@@ -5,12 +5,16 @@ WORKDIR /app
 # Install cron (only needed for scheduled runs)
 RUN apt-get update && apt-get install -y --no-install-recommends cron && rm -rf /var/lib/apt/lists/*
 
-# Copy scripts and requirements
-COPY scripts/ /app/scripts/
-COPY requirements.txt /app/
+# Copy project files
+COPY . /app/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Create non-root user
+RUN groupadd -r mediaorg && \
+    useradd -r -g mediaorg -u 1000 mediaorg && \
+    chown -R mediaorg:mediaorg /app
+
+# Install package and dependencies
+RUN pip install --no-cache-dir -e .
 
 # Make scripts executable
 RUN chmod +x /app/scripts/*.py
@@ -18,5 +22,8 @@ RUN chmod +x /app/scripts/*.py
 # Set environment
 ENV PYTHONUNBUFFERED=1
 ENV WORK_DIR=/media
+
+# Switch to non-root user
+USER mediaorg
 
 CMD ["sh", "-c", "echo '0 2 * * * python3 /app/scripts/organize.py >> /app/logs/cron.log 2>&1' | crontab - && cron -f"]
